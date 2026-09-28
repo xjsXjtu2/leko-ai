@@ -1,0 +1,128 @@
+<svg viewBox="0 0 680 782" width="100%" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>树莓派5 40针GPIO引脚图（标注本项目用针）</title>
+<text x="340" y="46" text-anchor="middle" font-size="15" font-weight="500" fill="#1a1a1a">树莓派5 · 40 针 GPIO 引脚图（BCM 编号）</text>
+<text x="340" y="68" text-anchor="middle" font-size="12" fill="#777">绿色 = 本项目已用 · 深灰 = GND · 棕 = 3.3V · 红 = 5V · 浅灰 = 空闲</text>
+<text x="195" y="108" text-anchor="middle" font-size="13" font-weight="500" fill="#444">左列（奇数针）</text>
+<text x="485" y="108" text-anchor="middle" font-size="13" font-weight="500" fill="#444">右列（偶数针）</text>
+<rect x="60" y="128" width="250" height="26" rx="6" fill="#854F0B" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="141" dominant-baseline="central" font-size="12" fill="#FFFFFF">3.3V（本项目不用）</text>
+<text x="340" y="141" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">1</text>
+<rect x="370" y="128" width="250" height="26" rx="6" fill="#A32D2D" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="141" dominant-baseline="central" font-size="12" fill="#FFFFFF">5V</text>
+<text x="340" y="141" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">2</text>
+<rect x="60" y="158" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="171" dominant-baseline="central" font-size="12" fill="#444441">GPIO2 SDA</text>
+<text x="340" y="171" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">3</text>
+<rect x="370" y="158" width="250" height="26" rx="6" fill="#A32D2D" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="171" dominant-baseline="central" font-size="12" fill="#FFFFFF">5V</text>
+<text x="340" y="171" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">4</text>
+<rect x="60" y="188" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="201" dominant-baseline="central" font-size="12" fill="#444441">GPIO3 SCL</text>
+<text x="340" y="201" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">5</text>
+<rect x="370" y="188" width="250" height="26" rx="6" fill="#5F5E5A" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="201" dominant-baseline="central" font-size="12" fill="#FFFFFF">GND</text>
+<text x="340" y="201" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">6</text>
+<rect x="60" y="218" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="231" dominant-baseline="central" font-size="12" fill="#444441">GPIO4</text>
+<text x="340" y="231" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">7</text>
+<rect x="370" y="218" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="231" dominant-baseline="central" font-size="12" fill="#444441">GPIO14 TXD</text>
+<text x="340" y="231" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">8</text>
+<rect x="60" y="248" width="250" height="26" rx="6" fill="#5F5E5A" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="261" dominant-baseline="central" font-size="12" fill="#FFFFFF">GND</text>
+<text x="340" y="261" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">9</text>
+<rect x="370" y="248" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="261" dominant-baseline="central" font-size="12" fill="#444441">GPIO15 RXD</text>
+<text x="340" y="261" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">10</text>
+<rect x="60" y="278" width="250" height="26" rx="6" fill="#3B6D11" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="291" dominant-baseline="central" font-size="12" fill="#FFFFFF">GPIO17 · 2IN1 右方向1</text>
+<text x="340" y="291" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">11</text>
+<rect x="370" y="278" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="291" dominant-baseline="central" font-size="12" fill="#444441">GPIO18</text>
+<text x="340" y="291" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">12</text>
+<rect x="60" y="308" width="250" height="26" rx="6" fill="#3B6D11" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="321" dominant-baseline="central" font-size="12" fill="#FFFFFF">GPIO27 · 2IN2 右方向2</text>
+<text x="340" y="321" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">13</text>
+<rect x="370" y="308" width="250" height="26" rx="6" fill="#5F5E5A" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="321" dominant-baseline="central" font-size="12" fill="#FFFFFF">GND</text>
+<text x="340" y="321" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">14</text>
+<rect x="60" y="338" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="351" dominant-baseline="central" font-size="12" fill="#444441">GPIO22</text>
+<text x="340" y="351" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">15</text>
+<rect x="370" y="338" width="250" height="26" rx="6" fill="#3B6D11" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="351" dominant-baseline="central" font-size="12" fill="#FFFFFF">GPIO23 · 1IN1 左方向1</text>
+<text x="340" y="351" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">16</text>
+<rect x="60" y="368" width="250" height="26" rx="6" fill="#854F0B" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="381" dominant-baseline="central" font-size="12" fill="#FFFFFF">3.3V</text>
+<text x="340" y="381" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">17</text>
+<rect x="370" y="368" width="250" height="26" rx="6" fill="#3B6D11" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="381" dominant-baseline="central" font-size="12" fill="#FFFFFF">GPIO24 · 1IN2 左方向2</text>
+<text x="340" y="381" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">18</text>
+<rect x="60" y="398" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="411" dominant-baseline="central" font-size="12" fill="#444441">GPIO10 MOSI</text>
+<text x="340" y="411" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">19</text>
+<rect x="370" y="398" width="250" height="26" rx="6" fill="#5F5E5A" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="411" dominant-baseline="central" font-size="12" fill="#FFFFFF">GND</text>
+<text x="340" y="411" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">20</text>
+<rect x="60" y="428" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="441" dominant-baseline="central" font-size="12" fill="#444441">GPIO9 MISO</text>
+<text x="340" y="441" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">21</text>
+<rect x="370" y="428" width="250" height="26" rx="6" fill="#3B6D11" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="441" dominant-baseline="central" font-size="12" fill="#FFFFFF">GPIO25 · 2A 右编码器A</text>
+<text x="340" y="441" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">22</text>
+<rect x="60" y="458" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="471" dominant-baseline="central" font-size="12" fill="#444441">GPIO11 SCLK</text>
+<text x="340" y="471" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">23</text>
+<rect x="370" y="458" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="471" dominant-baseline="central" font-size="12" fill="#444441">GPIO8 CE0</text>
+<text x="340" y="471" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">24</text>
+<rect x="60" y="488" width="250" height="26" rx="6" fill="#5F5E5A" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="501" dominant-baseline="central" font-size="12" fill="#FFFFFF">GND</text>
+<text x="340" y="501" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">25</text>
+<rect x="370" y="488" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="501" dominant-baseline="central" font-size="12" fill="#444441">GPIO7 CE1</text>
+<text x="340" y="501" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">26</text>
+<rect x="60" y="518" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="531" dominant-baseline="central" font-size="12" fill="#444441">GPIO0 ID_SD</text>
+<text x="340" y="531" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">27</text>
+<rect x="370" y="518" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="531" dominant-baseline="central" font-size="12" fill="#444441">GPIO1 ID_SC</text>
+<text x="340" y="531" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">28</text>
+<rect x="60" y="548" width="250" height="26" rx="6" fill="#3B6D11" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="561" dominant-baseline="central" font-size="12" fill="#FFFFFF">GPIO5 · 1A 左编码器A</text>
+<text x="340" y="561" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">29</text>
+<rect x="370" y="548" width="250" height="26" rx="6" fill="#5F5E5A" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="561" dominant-baseline="central" font-size="12" fill="#FFFFFF">GND</text>
+<text x="340" y="561" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">30</text>
+<rect x="60" y="578" width="250" height="26" rx="6" fill="#3B6D11" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="591" dominant-baseline="central" font-size="12" fill="#FFFFFF">GPIO6 · 1B 左编码器B</text>
+<text x="340" y="591" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">31</text>
+<rect x="370" y="578" width="250" height="26" rx="6" fill="#3B6D11" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="591" dominant-baseline="central" font-size="12" fill="#FFFFFF">GPIO12 · 1P 左轮PWM</text>
+<text x="340" y="591" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">32</text>
+<rect x="60" y="608" width="250" height="26" rx="6" fill="#3B6D11" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="621" dominant-baseline="central" font-size="12" fill="#FFFFFF">GPIO13 · 2P 右轮PWM</text>
+<text x="340" y="621" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">33</text>
+<rect x="370" y="608" width="250" height="26" rx="6" fill="#5F5E5A" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="621" dominant-baseline="central" font-size="12" fill="#FFFFFF">GND</text>
+<text x="340" y="621" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">34</text>
+<rect x="60" y="638" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="651" dominant-baseline="central" font-size="12" fill="#444441">GPIO19</text>
+<text x="340" y="651" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">35</text>
+<rect x="370" y="638" width="250" height="26" rx="6" fill="#3B6D11" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="651" dominant-baseline="central" font-size="12" fill="#FFFFFF">GPIO16 · 2B 右编码器B</text>
+<text x="340" y="651" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">36</text>
+<rect x="60" y="668" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="681" dominant-baseline="central" font-size="12" fill="#444441">GPIO26</text>
+<text x="340" y="681" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">37</text>
+<rect x="370" y="668" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="681" dominant-baseline="central" font-size="12" fill="#444441">GPIO20</text>
+<text x="340" y="681" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">38</text>
+<rect x="60" y="698" width="250" height="26" rx="6" fill="#5F5E5A" stroke="#00000022" stroke-width="0.5"/>
+<text x="70" y="711" dominant-baseline="central" font-size="12" fill="#FFFFFF">GND</text>
+<text x="340" y="711" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">39</text>
+<rect x="370" y="698" width="250" height="26" rx="6" fill="#F1EFE8" stroke="#00000022" stroke-width="0.5"/>
+<text x="380" y="711" dominant-baseline="central" font-size="12" fill="#444441">GPIO21</text>
+<text x="340" y="711" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#999">40</text>
+<text x="340" y="762" text-anchor="middle" font-size="12" fill="#777">中间数字 = 物理针脚号；接线表里的 GPIO 编号是 BCM 编号，两者不同</text>
+</svg>

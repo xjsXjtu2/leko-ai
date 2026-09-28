@@ -1,0 +1,44 @@
+# ---------- 系统 ----------
+.DS_Store
+._*
+Thumbs.db
+
+# ---------- 临时/抓取产物 ----------
+# .workbuddy/tmp 下是页面抓取的 txt/png 与 chrome.log，体积大且可重生成
+.workbuddy/tmp/
+
+# ---------- 编辑器（Obsidian）----------
+# 只忽略个人界面状态，保留 core-plugins/appearance 等可复现配置
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.env
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ---------- Node ----------
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---------- 日志与备份 ----------
+*.log
+*.bak
+*.tmp
+*~
+
+# ---------- 密钥/本地配置 ----------
+*.pem
+*.key
+secrets.json
