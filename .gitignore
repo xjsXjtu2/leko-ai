@@ -6,6 +6,7 @@ Thumbs.db
 # ---------- 临时/抓取产物 ----------
 # .workbuddy/tmp 下是页面抓取的 txt/png 与 chrome.log，体积大且可重生成
 .workbuddy/tmp/
+.workbuddy/
 
 # ---------- 编辑器（Obsidian）----------
 # 只忽略个人界面状态，保留 core-plugins/appearance 等可复现配置
