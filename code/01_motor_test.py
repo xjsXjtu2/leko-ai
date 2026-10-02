@@ -8,7 +8,7 @@ from time import sleep
 
 # BCM 编号，见 05-接线与调试手册
 left = Motor(forward=23, backward=24, enable=12, pwm=True)
-right = Motor(forward=17, backward=27, enable=13, pwm=True)
+right = Motor(forward=27, backward=17, enable=13, pwm=True)  # 两电机接线均与定义相反：实车校准后 forward() = 前驱车头方向
 
 
 def ramp(motor, name):
