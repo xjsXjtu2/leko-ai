@@ -50,3 +50,8 @@ cam_*.jpg
 *.pem
 *.key
 secrets.json
+
+
+# ------- deppseek harness
+deepseek-harness/
+
