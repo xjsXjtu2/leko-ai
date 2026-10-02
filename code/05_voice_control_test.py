@@ -24,6 +24,7 @@
   # 所以 sherpa-onnx 装在 venv 里；脚本会自动切过去，直接跑下面命令即可。
   python3 -m venv --system-site-packages ~/leko-venv   # apt 的 gpiozero/numpy 继续可见
   ~/leko-venv/bin/pip install sherpa-onnx
+  ~/leko-venv/bin/pip install edge-tts    # 云端 TTS（微软晓晓，自然）；断网自动切 piper
   其余依赖全来自 apt：gpiozero / numpy / alsa-utils（arecord/aplay/amixer）
 
 模型（一次性，约 170MB）
@@ -50,6 +51,7 @@ v0 安全边界（没有雷达/悬崖/急停硬件时的跑法）
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import os
@@ -206,6 +208,96 @@ def speak_seq(parts, gap=0.06):
     print(f"   🔊 {' '.join(parts)}")
 
 
+# ---------------- 播报工人（云端 TTS + 回声抑制 + 永不阻塞监听） ----------------
+
+EDGE_VOICE = "zh-CN-XiaoxiaoNeural"    # 微软晓晓：云端合成，自然；断网自动切 piper
+TTS_CACHE = PROMPT_DIR.parent / "cache"
+PLAYING = threading.Event()    # 播报中（含 0.3s 余量）：监听整块丢麦克风数据（回声抑制）
+
+
+class Speaker(threading.Thread):
+    """播放工人线程：一切播报走它。
+
+    为什么必须有它：原来 aplay/合成在监听线程里同步跑——播 1 秒音频，
+    麦克风管道就积压 1 秒旧音频，几分钟后"越说越慢"就是这个堆积。
+    播报挪到后台后，监听线程永远实时；播报期间丢掉麦克风块（自己的回声）。
+    合成链：edge-tts（云端，自然）→ 失败/断网 → piper（本地）兜底；按文本缓存。
+    """
+
+    def __init__(self):
+        super().__init__(daemon=True)
+        self.jobs = queue.Queue()
+        self._piper = None
+        self._lock = threading.Lock()
+
+    def put(self, text, warm=False):
+        self.jobs.put((text, warm))
+
+    def _synth_edge(self, text):
+        import asyncio
+        import edge_tts
+        mp3 = TTS_CACHE / (hashlib.md5(f"{EDGE_VOICE}:{text}".encode()).hexdigest() + ".mp3")
+        if not mp3.exists():
+            async def go():
+                await edge_tts.Communicate(text, EDGE_VOICE).save(str(mp3))
+            asyncio.run(go())
+        return mp3 if (mp3.exists() and mp3.stat().st_size > 2000) else None
+
+    def _say_edge(self, text):
+        try:
+            mp3 = self._synth_edge(text)
+        except Exception:            # noqa: BLE001  断网/缺包 → 让 piper 接手
+            return False
+        if mp3 is None:
+            return False
+        PLAYING.set()
+        rc, _, _ = run(["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", str(mp3)])
+        time.sleep(0.3)
+        PLAYING.clear()
+        return rc == 0
+
+    def _say_piper(self, text):
+        with self._lock:
+            if self._piper is None:
+                from piper import PiperVoice
+                self._piper = PiperVoice.load(str(TTS_VOICE))
+            wav = TTS_CACHE / (hashlib.md5(f"piper:{text}".encode()).hexdigest() + ".wav")
+            if not wav.exists():
+                piper_synth(self._piper, text, wav)
+        PLAYING.set()
+        _aplay(wav)
+        time.sleep(0.3)
+        PLAYING.clear()
+
+    def run(self):
+        TTS_CACHE.mkdir(parents=True, exist_ok=True)
+        while True:
+            text, warm = self.jobs.get()
+            try:
+                if warm:                     # 只预热合成缓存，不出声
+                    self._synth_edge(text)
+                    continue
+                if not self._say_edge(text):
+                    self._say_piper(text)
+            except Exception as e:           # noqa: BLE001
+                print(f"   ⚠ 播报失败：{e}")
+
+
+SPEAKER = Speaker()
+SPEAKER.start()
+
+
+def speak(text: str):
+    """非阻塞播报一句话：后台合成+播放（云端优先、piper 兜底、带缓存）。"""
+    SPEAKER.put(text)
+
+
+def prewarm_tts():
+    """预热常用播报的合成缓存（不出声）：首次应答不用等网络。"""
+    for t in ("在", "已停止", "没找到指令", "卡住了"):
+        SPEAKER.put(t, warm=True)
+
+
 def num2cn(n: int):
     """0~999 → 中文数字单字列表（45 → ['四','十','五']）。"""
     d = "零一二三四五六七八九"
@@ -253,25 +345,31 @@ def phrase_words(s_: str):
     return words
 
 
+def _say_dist(cmd: dict) -> str:
+    """命中原文 → 适合念的中文：'2.5m' → '二点五米'。"""
+    return "".join(phrase_words(cmd.get("dtxt") or f"{cmd['dist']}米"))
+
+
 def announce_cmd(cmd: dict):
-    """执行成功后的语音通报（需求 3：指令边界明确，执行完播报结果）。"""
+    """执行成功后的语音通报：整句合成（edge-tts 自然语调），不再拼接词段。"""
     op = cmd.get("op")
     if op == "dist":
         verb = "后退" if cmd["reverse"] else "前进"
-        d = "1米" if cmd.get("capped") else (cmd.get("dtxt") or f"{cmd['dist']}米")
-        speak_seq([verb, *phrase_words(d), "完毕"])
+        d = "一米" if cmd.get("capped") else _say_dist(cmd)
+        speak(f"{verb}{d}，完毕")
     elif op == "arc":
-        d = "左前方前进" if cmd["deg"] < 0 else "右前方前进"
-        speak_seq([d, *phrase_words(cmd.get("dtxt") or f"{cmd['dist']}米"), "完毕"])
+        d = "左前方" if cmd["deg"] < 0 else "右前方"
+        speak(f"{d}前进{_say_dist(cmd)}，完毕")
     elif op == "turn":
         deg = abs(cmd["deg"])
         if deg >= 360:
-            speak_seq(["转个圈", "完毕"])
+            speak("转个圈，完毕")
         elif deg >= 180:
-            speak_seq(["掉头", "完毕"])
+            speak("掉头，完毕")
         else:
             w = "右转" if cmd["deg"] > 0 else "左转"
-            speak_seq([w, *phrase_words(cmd.get("atxt") or f"{deg}度"), "完毕"])
+            ang = "".join(phrase_words(cmd.get("atxt") or f"{deg}度"))
+            speak(f"{w}{ang}，完毕")
 
 
 def alsa_card(subcmd=("aplay", "-l")):
@@ -475,21 +573,21 @@ def load_asr():
         print("   ℹ 模型类型：transducer")
         return sherpa_onnx.OfflineRecognizer.from_transducer(
             encoder=str(enc[0]), decoder=str(dec[0]), joiner=str(joi[0]),
-            tokens=str(tok[0]), num_threads=2,
+            tokens=str(tok[0]), num_threads=4,
             decoding_method="greedy_search")
     if par and "sense" in name:                   # SenseVoice（中英日韩粤）
         print("   ℹ 模型类型：sense_voice（int8，中英日韩粤）")
         return sherpa_onnx.OfflineRecognizer.from_sense_voice(
-            model=str(par[0]), tokens=str(tok[0]), num_threads=2,
+            model=str(par[0]), tokens=str(tok[0]), num_threads=4,
             language="zh", use_itn=True)
     if par and "paraformer" in name:
         print("   ℹ 模型类型：paraformer")
         return sherpa_onnx.OfflineRecognizer.from_paraformer(
-            paraformer=str(par[0]), tokens=str(tok[0]), num_threads=2)
+            paraformer=str(par[0]), tokens=str(tok[0]), num_threads=4)
     if par:                                       # zipformer-ctc 一类：单 model.onnx
         print("   ℹ 模型类型：zipformer_ctc（按单模型文件推断）")
         return sherpa_onnx.OfflineRecognizer.from_zipformer_ctc(
-            model=str(par[0]), tokens=str(tok[0]), num_threads=2)
+            model=str(par[0]), tokens=str(tok[0]), num_threads=4)
     sys.exit(f"✗ {d} 里找不到可识别的模型组合：\n"
              f"   encoder/decoder/joiner 或 model.onnx（+ tokens.txt）")
 
@@ -673,6 +771,20 @@ class Listener(threading.Thread):
              "-r", "16000", "-c", "1"],
             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, bufsize=-1)
 
+    def _fresh_ears(self, proc):
+        """清耳（唤醒时/回睡时）：重启麦克风扔掉管道积压 + 重建 VAD 丢半截段 + 清预缓冲。
+
+        识别/播报偶尔卡顿会让旧音频在管道里排队——越排越多，就是"延时变大"。
+        """
+        try:
+            proc.kill()
+        except Exception:                       # noqa: BLE001
+            pass
+        proc = self._mic()
+        self.vad, self.window = load_vad()
+        self.preroll.clear()
+        return proc
+
     def _with_preroll(self, seg):
         """VAD 段前面拼 0.3s 预缓冲：VAD 触发晚削掉的首字从这里找回来。"""
         import numpy as np
@@ -695,12 +807,15 @@ class Listener(threading.Thread):
                     proc = self._mic()
                     continue
                 samples = np.frombuffer(data, dtype=np.int16)
+                if self.armed and PLAYING.is_set():     # 播报中：麦克风收的是自己的
+                    continue                            # 回声，整块丢弃（防自识别/自触发）
                 self.preroll.append(samples)
                 if not self.armed:                    # ---- WAKE：只跑唤醒词 ----
                     kw = kws_feed(self.kws, self.stream, samples)
                     if kw:
                         print(f"   🐟 唤醒：\"{kw}\"")
-                        speak_seq(["在"])
+                        speak("在")
+                        proc = self._fresh_ears(proc)   # 清耳：扔掉积压旧音频 + 重建 VAD
                         self.armed = True
                         self.last_act = time.monotonic()
                     continue
@@ -727,6 +842,7 @@ class Listener(threading.Thread):
                 if (not self.moving.is_set()
                         and time.monotonic() - self.last_act > CONTINUE_WINDOW):
                     self.armed = False
+                    proc = self._fresh_ears(proc)
                     print("   💤 超时无指令，回到待唤醒（喊\"小树莓\"）")
             except Exception as e:                     # noqa: BLE001
                 print(f"   ⚠ 监听异常：{e}（重启麦克风）")
@@ -786,7 +902,7 @@ class Driver:
                     c = cmd_q.get_nowait()
                     if c.get("op") == "stop":
                         self._stop()
-                        speak_seq(["已停止"])
+                        speak("已停止")
                         print("   ⏹ 语音急停")
                         return "stop"
                     # 行驶中忽略其它指令（只许停）
@@ -812,7 +928,7 @@ class Driver:
                 cur = (self.e_l.steps, self.e_r.steps)
                 if cur == last and now - last_t > STALL_MS / 1000:
                     self._stop()
-                    speak_seq(["卡住了"])
+                    speak("卡住了")
                     print("   ⚠ 堵转，已断电")
                     return "stuck"
                 if cur != last:
@@ -1054,6 +1170,7 @@ def cmd_wake(argv=None):
     if sys.platform == "darwin":
         sys.exit("✗ wake 在树莓派上跑（要麦克风）")
     ensure_volume()
+    prewarm_tts()
     print("== 唤醒词自测：喊\"小树莓/小树莓小树莓\"应答\"在\"；聊天/杂音不进识别。Ctrl-C 退出 ==")
     Listener(queue.Queue(), threading.Event()).start()
     while True:
@@ -1064,6 +1181,7 @@ def cmd_loop(argv=None):
     if sys.platform == "darwin":
         sys.exit("✗ loop 在树莓派上跑（要电机）")
     ensure_volume()
+    prewarm_tts()
     moving = threading.Event()
     d = Driver(moving)
     q = queue.Queue()
@@ -1078,9 +1196,9 @@ def cmd_loop(argv=None):
             rc = None
             if op == "stop":
                 d._stop()
-                speak_seq(["已停止"])
+                speak("已停止")
             elif op == "miss":
-                speak_seq(["没找到指令"])
+                speak("没找到指令")
             elif op == "dist":
                 if c.get("capped"):
                     print("   ⚠ 倒车限 1 米（前驱规则）")
