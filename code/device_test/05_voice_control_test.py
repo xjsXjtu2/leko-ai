@@ -70,7 +70,7 @@ from pathlib import Path
 # 用系统 python3 直接跑时，这里自动换成 venv 解释器重启自己，保证
 #   python3 05_voice_control_test.py <子命令>
 # 这个用法始终有效——不需要你记住 venv 路径。
-VENV_PY = Path.home() / "leko-venv" / "bin" / "python3"
+VENV_PY = Path(__file__).resolve().parents[2] / "leko-venv" / "bin" / "python3"
 
 
 def _bootstrap():
@@ -90,7 +90,9 @@ def _bootstrap():
 
 _bootstrap()
 
-BASE = Path(__file__).resolve().parent
+# 数据锚定仓库根（与 leko/config.yaml 同一套：models/、av_out/、voice_calib.json 都在
+# 仓库内、gitignore 不进 git），克隆到哪都能跑；与正式包只共享数据不共享代码
+BASE = Path(__file__).resolve().parents[2]
 MODEL_DIR = BASE / "models" / "asr"
 ASR_DIR = MODEL_DIR / "sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17"
 VAD_MODEL = MODEL_DIR / "silero_vad.onnx"

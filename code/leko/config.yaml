@@ -1,0 +1,44 @@
+# leko 配置 —— 唯一事实源（07-软件架构设计 §3.1；引脚照抄 05-接线与调试手册）
+# 路径全部锚定 ~（树莓派用户主目录），与部署位置 ~/leko 解耦。
+
+# 相对路径 = 仓库根（如 ~/leko-ai/）；所有数据内聚进仓库、gitignore 不进 git，
+# 换克隆位置零改动。bash code/download_models.sh 一键重建模型。
+paths:
+  asr_dir: models/asr/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-int8-2024-07-17
+  kws_dir: models/asr/sherpa-onnx-kws-zipformer-zh-en-3M-2025-12-20
+  vad_model: models/asr/silero_vad.onnx
+  tts_voice: models/tts/zh_CN-huayan-medium.onnx
+  prompt_dir: av_out/voice            # 播报词段 + 整句（offline 兜底用）
+  tts_cache: av_out/cache             # edge-tts/piper 按文本缓存
+  calib_file: voice_calib.json       # 编码器步/米校准（设备相关，gitignore）
+
+pins:                                 # 实车已校准：forward() = 车头（前驱驱动轮端）前进
+  motor_left:  {in1: 23, in2: 24, pwm: 12, invert: false}   # PWM12 = 硬件 PWM0
+  motor_right: {in1: 17, in2: 27, pwm: 13, invert: false}    # PWM13 = 硬件 PWM1
+                                        # ReSpeaker 到货后 in1: 17 → 26（06 手册已定）
+  encoder_left:  {a: 5,  b: 6}
+  encoder_right: {a: 25, b: 16}
+
+wake:                                 # 唤醒词（sherpa-onnx KeywordSpotter）
+  words:                               # [显示文本, 拼音(带声调数字)]；树=四声 莓=二声
+    - ["小树莓", "xiao3 shu4 mei2"]
+    - ["小树莓小树莓", "xiao3 shu4 mei2 xiao3 shu4 mei2"]
+  threshold: 0.25                     # 越大越难触发；喊不应就调小
+  continue_window_s: 12               # 免唤醒续听窗口；行驶中不回睡眠（"停"要能打断）
+  preroll_s: 0.30                     # 预缓冲：VAD 触发前 0.3s 拼回段首，补削掉的首字
+
+motion:
+  speed_pwm: 0.35                     # 行驶 PWM（≈0.25m/s，无雷达限速）
+  max_dist_m: 3.0                     # 单条指令最大距离
+  max_reverse_m: 1.0                  # 前驱：禁长倒
+  wheel_base_m: 0.17                  # 两驱动轮中心距（calib 实测替换）
+  straight_k: 4.0                     # 直线修正增益：右轮 PWM = speed + K×(左米-右米)
+  turn_sign: 1                        # 实车"左转"若向右转，改 -1（不改接线）
+  tick_s: 0.02                        # 50Hz 控制周期
+
+safety:
+  stall_ms: 500                       # PWM 有输出且编码器无脉冲 → 断电（520 堵转 3.5A > TB6612 峰值 3.2A）
+  junk_dbfs: -45.0                    # 语音段电平低于此 = 呼吸/远场杂音，不送识别
+
+tts:
+  edge_voice: "zh-CN-XiaoxiaoNeural"  # 云端音色（微软晓晓）；断网自动切 piper 本地兜底
