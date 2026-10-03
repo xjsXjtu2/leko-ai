@@ -66,14 +66,15 @@ class Pilot:
                         speak("已停止")
                         print("   ⏹ 语音急停")
                         return "stop"
-                # ② 目标达成
+                # ② 目标达成。到点的那一侧立刻停，不能等慢的一侧
+                #    （原地转时慢轮还在走，快轮会多转好几圈）
                 prog_l = abs(e_l.steps) / at_l if at_l else 1.0
                 prog_r = abs(e_r.steps) / at_r if at_r else 1.0
-                if min(prog_l, prog_r) >= 0.99:
+                if prog_l >= 0.99 and prog_r >= 0.99:
                     break
                 # ③ 直线修正：两轮同向且目标相近时，右轮追左轮里程
                 straight = (tl * tr > 0) and abs(at_l - at_r) <= max(at_l, at_r) * 0.02
-                if straight:
+                if straight and prog_l < 0.99 and prog_r < 0.99:
                     pr = speed + STRAIGHT_K * (abs(e_l.steps) / self.l_spm
                                                - abs(e_r.steps) / self.r_spm)
                     pr = max(0.12, min(0.9, pr))
@@ -82,8 +83,12 @@ class Pilot:
                     ratio = (at_r / at_l) if at_l and at_r else 1.0
                     pr = min(0.7, speed * max(1.0, ratio))
                     pl = min(0.7, speed * max(1.0, 1.0 / ratio if ratio else 1.0))
+                if prog_l >= 0.99:
+                    pl = 0
+                if prog_r >= 0.99:
+                    pr = 0
                 self._drive((1 if tl >= 0 else -1) * pl, (1 if tr >= 0 else -1) * pr)
-                # ④ 堵转：PWM 有输出但编码器 500ms 不动
+                # ④ 堵转：还在驱动的轮 500ms 编码器不动
                 now = time.monotonic()
                 cur = (e_l.steps, e_r.steps)
                 if cur == last and now - last_t > STALL_MS / 1000:

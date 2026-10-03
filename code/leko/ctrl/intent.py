@@ -142,7 +142,7 @@ def parse(text: str):
                 return {"op": "miss"} if _leftover_ok(t, w, vm.group(0) if vm else "") else None
             return {"op": "arc", "deg": deg, "dist": dist, "dtxt": dtxt} \
                 if _leftover_ok(t, w, dtxt, vm.group(0) if vm else "") else None
-    m2 = re.search(r"掉头|转身|转个圈", t)
+    m2 = re.search(r"掉头|调头|转身|转个圈", t)
     if m2:
         deg = 360 if "圈" in m2.group(0) else 180
         return {"op": "turn", "deg": deg} if _leftover_ok(t, m2.group(0)) else None

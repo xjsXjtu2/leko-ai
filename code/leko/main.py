@@ -433,7 +433,7 @@ def cmd_loop(argv=None):
     listener.start()
     prewarm_tts()
     print("== 语音控车主循环：喊\"乐可\"唤醒 → 说指令 ==")
-    print("   指令：前进一米 / 后退半米 / 左前方前进1m / 左转九十度 / 掉头 / 停")
+    print("   指令：前进一米 / 后退半米 / 左前方前进1m / 左转九十度 / 掉头 / 调头 / 停")
     print("   唤醒后 12 秒内免唤醒连说；行驶中\"停\"随时打断；执行完语音播报结果")
     try:
         while True:

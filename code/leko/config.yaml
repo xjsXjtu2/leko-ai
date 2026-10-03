@@ -32,9 +32,9 @@ motion:
   speed_pwm: 0.35                     # 行驶 PWM（≈0.25m/s，无雷达限速）
   max_dist_m: 3.0                     # 单条指令最大距离
   max_reverse_m: 1.0                  # 前驱：禁长倒
-  wheel_base_m: 0.17                  # 两驱动轮中心距（calib 实测替换）
+  wheel_base_m: 0.11                  # 两驱动轮中心距。0.20 时 90° 实转近 180°（2026-10-04）
   straight_k: 4.0                     # 直线修正增益：右轮 PWM = speed + K×(左米-右米)
-  turn_sign: 1                        # 实车"左转"若向右转，改 -1（不改接线）
+  turn_sign: -1                       # 2026-10-04 实车喊左转往右，取 -1（不改接线）
   tick_s: 0.02                        # 50Hz 控制周期
 
 safety:

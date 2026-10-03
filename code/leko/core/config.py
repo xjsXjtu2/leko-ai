@@ -34,7 +34,7 @@ DEFAULTS: dict = {
         "threshold": 0.25, "continue_window_s": 12, "preroll_s": 0.30,
     },
     "motion": {"speed_pwm": 0.35, "max_dist_m": 3.0, "max_reverse_m": 1.0,
-               "wheel_base_m": 0.17, "straight_k": 4.0, "turn_sign": 1, "tick_s": 0.02},
+               "wheel_base_m": 0.11, "straight_k": 4.0, "turn_sign": -1, "tick_s": 0.02},
     "safety": {"stall_ms": 500, "junk_dbfs": -45.0},
     "vad_clips": {"max_mb": 20, "max_hours": 48},
     "tts": {"edge_voice": "zh-CN-XiaoxiaoNeural",

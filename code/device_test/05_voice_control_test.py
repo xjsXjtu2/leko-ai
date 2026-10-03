@@ -518,7 +518,7 @@ def parse(text: str):
                 return {"op": "miss"} if _leftover_ok(t, w, vm.group(0) if vm else "") else None
             return {"op": "arc", "deg": deg, "dist": dist, "dtxt": dtxt} \
                 if _leftover_ok(t, w, dtxt, vm.group(0) if vm else "") else None
-    m2 = re.search(r"掉头|转身|转个圈", t)
+    m2 = re.search(r"掉头|调头|转身|转个圈", t)
     if m2:
         deg = 360 if "圈" in m2.group(0) else 180
         return {"op": "turn", "deg": deg} if _leftover_ok(t, m2.group(0)) else None
@@ -1204,7 +1204,7 @@ def cmd_loop(argv=None):
     q = queue.Queue()
     Listener(q, moving).start()
     print("== 语音控车主循环：喊\"乐可\"唤醒 → 说指令 ==")
-    print("   指令：前进一米 / 后退半米 / 左前方前进1m / 左转九十度 / 掉头 / 停")
+    print("   指令：前进一米 / 后退半米 / 左前方前进1m / 左转九十度 / 掉头 / 调头 / 停")
     print("   唤醒后 12 秒内免唤醒连说；行驶中\"停\"随时打断；执行完语音播报结果")
     try:
         while True:
