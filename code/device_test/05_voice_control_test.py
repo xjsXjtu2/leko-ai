@@ -499,6 +499,9 @@ def parse(text: str):
     if not text:
         return None
     t = re.sub(r"[\s，。,!？！？、'\"']", "", text.lower()).replace("１", "1")
+    # SenseVoice 常把「米」听成「名」：前进一名 / 后退一名 / 半名
+    t = re.sub(r"([\d.]+|[零一二三四五六七八九十百两半]+(?:点[零一二三四五\d]+)?)名",
+               r"\1米", t)
     if re.search(r"停|刹车|别动|stop", t):
         return {"op": "stop"}
     dist, dtxt = _dist_match(t)
@@ -607,9 +610,21 @@ def load_vad():
         cfg.silero_vad.window_size
 
 
+def _model_audio(samples):
+    """sherpa 的 accept_waveform 要 float32、幅度 [-1, 1]。整数刻度先除 32768。"""
+    import numpy as np
+    a = np.asarray(samples)
+    peak = float(np.max(np.abs(a))) if a.size else 0.0
+    if a.dtype == np.int16 or peak > 8.0:
+        out = np.ascontiguousarray(a, dtype=np.float32) / 32768.0
+        print(f"   🎚 识别刻度 {a.dtype} peak {peak:.0f} → {float(np.max(np.abs(out))):.2f}")
+        return out
+    return np.ascontiguousarray(a, dtype=np.float32)
+
+
 def recognize(rec, samples) -> str:
     stream = rec.create_stream()
-    stream.accept_waveform(16000, samples)
+    stream.accept_waveform(16000, _model_audio(samples))
     # 1.13 起 OfflineRecognizer.decode() 改名为 decode_stream()（旧版兼容）
     decode = getattr(rec, "decode_stream", None) or rec.decode
     decode(stream)

@@ -120,6 +120,9 @@ def parse(text: str):
     if not text:
         return None
     t = re.sub(r"[\s，。,!？！？、'\"']", "", text.lower()).replace("１", "1")
+    # SenseVoice 常把「米」听成「名」：前进一名 / 后退一名 / 半名
+    t = re.sub(r"([\d.]+|[零一二三四五六七八九十百两半]+(?:点[零一二三四五\d]+)?)名",
+               r"\1米", t)
     if re.search(r"停|刹车|别动|stop", t):
         return {"op": "stop"}
     md = re.search(r"听写|默写", t)             # F2.0 英语听写（08 方案；进入会话态）

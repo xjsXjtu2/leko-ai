@@ -22,6 +22,7 @@ from typing import List
 from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 
+import asr
 import prompts
 import vision
 
@@ -49,6 +50,10 @@ class WordlistReq(BaseModel):
     image_b64: str
 
 
+class AsrReq(BaseModel):
+    wav_b64: str
+
+
 class HandwritingReq(BaseModel):
     image_b64: str
     words: List[str]
@@ -57,7 +62,21 @@ class HandwritingReq(BaseModel):
 @app.get("/health")
 def health():
     return {"ok": True, "api_key": bool(os.environ.get("DASHSCOPE_API_KEY")),
-            "model": os.environ.get("VISION_MODEL", "qwen-vl-plus")}
+            "model": os.environ.get("VISION_MODEL", "qwen-vl-plus"),
+            "asr_model": os.environ.get("ASR_MODEL", "qwen3-asr-flash")}
+
+
+@app.post("/asr")
+def transcribe(req: AsrReq, request: Request):
+    """唤醒之后的一句指令。key 未配返回 503，Pi 退回本地 SenseVoice。"""
+    _auth(request)
+    if not os.environ.get("DASHSCOPE_API_KEY"):
+        raise HTTPException(503, "DASHSCOPE_API_KEY 未配置（ECS ~/leko-ecs/.env）")
+    try:
+        text = asr.transcribe(req.wav_b64)
+    except asr.UpstreamError as e:
+        raise HTTPException(502, str(e))
+    return {"text": text}
 
 
 @app.post("/vision/wordlist")

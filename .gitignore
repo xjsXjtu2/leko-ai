@@ -58,6 +58,7 @@ cam_*.jpg
 *.pem
 *.key
 secrets.json
+device_token
 
 
 # ------- deppseek harness

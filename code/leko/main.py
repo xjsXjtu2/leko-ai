@@ -89,7 +89,8 @@ from leko.ctrl.intent import parse, phrase_words                        # noqa: 
 from leko.ctrl.pilot import Pilot                                        # noqa: E402
 from leko.hal.audio import ensure_volume, seg_dbfs, start_mic           # noqa: E402
 from leko.voice.asr import (find_asr_dir, load_asr, load_vad,       # noqa: E402
-                             read_wav_mono16k, recognize)
+                             read_wav_mono16k, recognize, recognize_command)
+from leko.voice.clips import keep_vad_clip                            # noqa: E402
 from leko.voice.tts import (PARTS_DIR, PROMPT_DIR, PROMPT_TEXT,          # noqa: E402
                             SPEAK_CHARS, SPEAK_MISC, SPEAK_UNITS, SPEAK_VERBS,
                             piper_synth, prewarm_tts, speak)
@@ -216,7 +217,10 @@ class Listener(threading.Thread):
                     audio = self._with_preroll(seg)   # 预缓冲补首字
                     if seg_dbfs(audio) < JUNK_DBFS:   # 呼吸/远场杂音：不浪费识别
                         continue
-                    text = recognize(self.rec, audio)
+                    text, src = recognize_command(self.rec, audio)
+                    clip = keep_vad_clip(audio, text)
+                    if clip is not None:
+                        print(f"   📼 {clip.name}")
                     if not text:
                         continue
                     if self.text_hook is not None:      # 技能会话内：会话短指令优先
@@ -225,7 +229,7 @@ class Listener(threading.Thread):
                         cmd = parse(text)
                     if cmd is None and len(text) <= 2:  # "嗯/啊"短杂音：不刷屏
                         continue
-                    print(f"   🗣 \"{text}\" → {cmd if cmd else '（无关，忽略）'}")
+                    print(f"   🗣 {src} \"{text}\" → {cmd if cmd else '（无关，忽略）'}")
                     if cmd:
                         self.q.put(cmd)
                         self.last_act = time.monotonic()

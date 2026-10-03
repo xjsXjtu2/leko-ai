@@ -77,9 +77,73 @@ def load_vad():
         cfg.silero_vad.window_size
 
 
+def _model_audio(samples):
+    """sherpa 的 accept_waveform 要 float32、幅度 [-1, 1]。
+
+    麦克风来的是 int16（或同刻度的 float）。峰值 >8 视为整数刻度，先除 32768。
+    已经是归一化浮点的不动。阈值与 _with_preroll / seg_dbfs 一致。
+    """
+    import numpy as np
+    a = np.asarray(samples)
+    peak = float(np.max(np.abs(a))) if a.size else 0.0
+    if a.dtype == np.int16 or peak > 8.0:
+        out = np.ascontiguousarray(a, dtype=np.float32) / 32768.0
+        print(f"   🎚 识别刻度 {a.dtype} peak {peak:.0f} → {float(np.max(np.abs(out))):.2f}")
+        return out
+    return np.ascontiguousarray(a, dtype=np.float32)
+
+
+def _pcm16(samples) -> bytes:
+    """识别段 → 16k 单声道 s16le。已经是 int16 的原样用。"""
+    import numpy as np
+    a = np.asarray(samples)
+    if a.dtype != np.int16:
+        a = a.astype(np.float32)
+        peak = float(np.max(np.abs(a))) if a.size else 0.0
+        if peak <= 8.0:
+            a = a * 32768.0
+        a = np.clip(a, -32768, 32767).astype(np.int16)
+    if a.size > 16000 * 8:
+        a = a[:16000 * 8]
+    return np.ascontiguousarray(a).tobytes()
+
+
+def _wav_b64(samples) -> str:
+    import base64
+    import io
+    import wave
+    buf = io.BytesIO()
+    pcm = _pcm16(samples)
+    with wave.open(buf, "wb") as w:
+        w.setnchannels(1)
+        w.setsampwidth(2)
+        w.setframerate(16000)
+        w.writeframes(pcm)
+    return base64.b64encode(buf.getvalue()).decode()
+
+
+def recognize_cloud(samples) -> str:
+    """把这一句送到 ECS 百炼。失败抛 RuntimeError，调用方退回本地。"""
+    from leko.net.http_client import post_json
+    data = post_json("/asr", {"wav_b64": _wav_b64(samples)}, timeout=12)
+    return str(data.get("text") or "").strip()
+
+
+def recognize_command(rec, samples) -> tuple[str, str]:
+    """唤醒后的指令：先云端，失败再用本地 SenseVoice。返回 (文本, 来源)。"""
+    try:
+        text = recognize_cloud(samples)
+        if text:
+            return text, "云端"
+        print("   ⚠ 云端识别结果为空，改用本地")
+    except Exception as e:                                  # noqa: BLE001
+        print(f"   ⚠ 云端识别不可用（{e}），改用本地")
+    return recognize(rec, samples), "本地"
+
+
 def recognize(rec, samples) -> str:
     stream = rec.create_stream()
-    stream.accept_waveform(16000, samples)
+    stream.accept_waveform(16000, _model_audio(samples))
     # 1.13 起 OfflineRecognizer.decode() 改名为 decode_stream()（旧版兼容）
     decode = getattr(rec, "decode_stream", None) or rec.decode
     decode(stream)
