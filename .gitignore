@@ -42,11 +42,10 @@ pnpm-debug.log*
 # ---------- 硬件验收测试产物（可重生成，体积大）----------
 code/av_out/
 # ⚠ 数据全部内聚在仓库内但绝不进 git：models/、av_out/、cmd_test/、
-# voice_calib.json、leko-venv/ 都是 gitignore 的本地数据/环境。
+# leko-venv/ 都是 gitignore 的本地数据/环境。
 # ⚠⚠ 严禁 git clean -fdx —— 它会连 280MB 模型和标定数据一起删掉！
 models/
 av_out/
-voice_calib.json
 cmd_test/
 leko-venv/
 # 脚本被单独调用时可能落在仓库根的录音
