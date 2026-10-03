@@ -23,7 +23,7 @@ DEFAULTS: dict = {
     },
     "pins": {
         "motor_left": {"in1": 23, "in2": 24, "pwm": 12, "invert": False},
-        "motor_right": {"in1": 17, "in2": 27, "pwm": 13, "invert": False},
+        "motor_right": {"in1": 17, "in2": 27, "pwm": 13, "invert": True},
         "encoder_left": {"a": 5, "b": 6},
         "encoder_right": {"a": 25, "b": 16},
     },

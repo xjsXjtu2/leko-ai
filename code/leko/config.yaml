@@ -14,7 +14,7 @@ paths:
 
 pins:                                 # 实车已校准：forward() = 车头（前驱驱动轮端）前进
   motor_left:  {in1: 23, in2: 24, pwm: 12, invert: false}   # PWM12 = 硬件 PWM0
-  motor_right: {in1: 17, in2: 27, pwm: 13, invert: false}    # PWM13 = 硬件 PWM1
+  motor_right: {in1: 17, in2: 27, pwm: 13, invert: true}     # 2026-10-04 右轮与定义相反，代码翻转；PWM13 = 硬件 PWM1
                                         # ReSpeaker 到货后 in1: 17 → 26（06 手册已定）
   encoder_left:  {a: 5,  b: 6}
   encoder_right: {a: 25, b: 16}

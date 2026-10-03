@@ -9,8 +9,8 @@ from time import sleep
 
 enc_l = RotaryEncoder(a=5, b=6, max_steps=0)
 enc_r = RotaryEncoder(a=25, b=16, max_steps=0)
-# 2026-10-02 实车两轮校准：左电机接线方向与定义相反（对调 23/24），
-# 右电机同样反向（对调 17/27）→ forward() = 车头（前驱驱动轮端）前进
+# 2026-10-02 实车：右电机对调 17/27（= config motor_right.invert），
+# 左电机保持 23/24 → forward() = 车头（前驱驱动轮端）前进
 left = Motor(forward=23, backward=24, enable=12, pwm=True)
 right = Motor(forward=27, backward=17, enable=13, pwm=True)
 

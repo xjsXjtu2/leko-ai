@@ -9,7 +9,7 @@ from time import sleep
 enc_l = RotaryEncoder(a=5, b=6, max_steps=0)      # 左轮
 enc_r = RotaryEncoder(a=25, b=16, max_steps=0)    # 右轮
 left = Motor(forward=23, backward=24, enable=12, pwm=True)
-right = Motor(forward=27, backward=17, enable=13, pwm=True)  # 两电机接线均与定义相反：实车校准后 forward() = 前驱车头方向
+right = Motor(forward=27, backward=17, enable=13, pwm=True)  # 右轮与定义相反（= config motor_right.invert）：forward() = 前驱车头方向
 
 print("== 第一步：用手分别正/反转左右轮各几圈，观察计数方向 ==")
 for _ in range(6):

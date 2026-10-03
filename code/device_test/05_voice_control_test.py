@@ -99,7 +99,7 @@ VAD_MODEL = MODEL_DIR / "silero_vad.onnx"
 PROMPT_DIR = BASE / "av_out" / "voice"
 CALIB_FILE = BASE / "voice_calib.json"
 
-# 引脚照抄 01~03（实车已校准：forward() = 车头即前驱驱动轮端前进）
+# 引脚照抄 01~03（左 23/24；右对调 27/17 = config motor_right.invert）
 PIN_L = dict(forward=23, backward=24, enable=12, pwm=True)
 PIN_R = dict(forward=27, backward=17, enable=13, pwm=True)
 ENC_L = dict(a=5, b=6)
