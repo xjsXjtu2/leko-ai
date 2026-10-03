@@ -35,7 +35,12 @@ DEFAULTS: dict = {
     "motion": {"speed_pwm": 0.35, "max_dist_m": 3.0, "max_reverse_m": 1.0,
                "wheel_base_m": 0.17, "straight_k": 4.0, "turn_sign": 1, "tick_s": 0.02},
     "safety": {"stall_ms": 500, "junk_dbfs": -45.0},
-    "tts": {"edge_voice": "zh-CN-XiaoxiaoNeural"},
+    "tts": {"edge_voice": "zh-CN-XiaoxiaoNeural",
+            "edge_voice_en": "en-US-AnaNeural"},
+    "dictation": {"ecs_base": "http://8.161.228.205:8300",
+                  "device_token": "", "photo_blur_min": 30.0,
+                  "word_gap_s": 10.0, "rounds_max": 3,
+                  "repeats": 3, "gap_per_letter": 0.5},
 }
 
 

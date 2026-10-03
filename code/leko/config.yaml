@@ -41,4 +41,15 @@ safety:
   junk_dbfs: -45.0                    # 语音段电平低于此 = 呼吸/远场杂音，不送识别
 
 tts:
-  edge_voice: "zh-CN-XiaoxiaoNeural"  # 云端音色（微软晓晓）；断网自动切 piper 本地兜底
+  edge_voice: "zh-CN-XiaoxiaoNeural"  # 中文音色（微软晓晓）：流程指令；断网自动切 piper
+  edge_voice_en: "en-US-AnaNeural"   # 英文音色（Ana 儿童声）：念单词/拼字母（听写）
+
+dictation:                            # F2.0 英语听写（08-技术方案）
+  ecs_base: "http://8.161.228.205:8300"   # ECS 视觉服务（root@，免密已配）
+  device_token: ""                    # 留空则读仓库根 device_token 文件（gitignore）
+  photo_blur_min: 30.0                # 拍照清晰度阈值：先按低纹理室内场景放低（白墙~19），
+                                      # 真实单词表照片标定后改（文字边缘方差高得多）
+  word_gap_s: 10.0                   # 词间等待（写字时间）；"下一个"可跳过
+  rounds_max: 3                      # 订正循环上限（需求 F2.0）
+  repeats: 3                         # 每词念几遍（已拍板：统一 3 遍）
+  gap_per_letter: 0.5                # 每遍间隔 = 字母数 × 此值（已拍板：÷2 秒）

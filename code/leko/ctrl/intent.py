@@ -122,6 +122,9 @@ def parse(text: str):
     t = re.sub(r"[\s，。,!？！？、'\"']", "", text.lower()).replace("１", "1")
     if re.search(r"停|刹车|别动|stop", t):
         return {"op": "stop"}
+    md = re.search(r"听写|默写", t)             # F2.0 英语听写（08 方案；进入会话态）
+    if md:
+        return {"op": "dictation"} if _leftover_ok(t, md.group(0)) else None
     dist, dtxt = _dist_match(t)
     ang, atxt = None, None
     a = re.search(r"([零一二三四五六七八九十百两\d]+)度", t)

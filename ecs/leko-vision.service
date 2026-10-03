@@ -1,0 +1,13 @@
+[Unit]
+Description=leko vision service (dictation F2.0)
+After=network-online.target
+
+[Service]
+WorkingDirectory=/root/leko-ecs
+EnvironmentFile=/root/leko-ecs/.env
+ExecStart=/root/leko-ecs/venv/bin/uvicorn server:app --host 0.0.0.0 --port 8300
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

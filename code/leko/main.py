@@ -16,6 +16,7 @@
   python3 ~/leko/main.py drive                 # 无语音自测：里程闭环走 1 米
   python3 ~/leko/main.py mic                   # 听一句 → 打印识别与解析（不动车）
   python3 ~/leko/main.py wake                  # 唤醒词自测（喊"小树莓"应答，不动车）
+  python3 ~/leko/main.py dictation            # 英语听写（F2.0；免唤醒调试模式）
   python3 ~/leko/main.py loop                  # 主循环：唤醒词 → 听 → 解析 → 执行 → 播报
 
 依赖与模型（全部内聚在仓库目录，gitignore 不进 git）
@@ -153,6 +154,7 @@ class Listener(threading.Thread):
             self.stream = self.kws.create_stream()
         self.armed = not enable_kws        # 关 KWS（mic 自测）= 一直 ARMED
         self.last_act = time.monotonic()
+        self.text_hook = None            # 技能会话钩子（听写）：短指令优先于全局解析
         self.preroll = deque(maxlen=max(1, int(16000 * PREROLL_S / self.window)))
 
     def _with_preroll(self, seg):
@@ -217,7 +219,10 @@ class Listener(threading.Thread):
                     text = recognize(self.rec, audio)
                     if not text:
                         continue
-                    cmd = parse(text)
+                    if self.text_hook is not None:      # 技能会话内：会话短指令优先
+                        cmd = self.text_hook(text)
+                    else:
+                        cmd = parse(text)
                     if cmd is None and len(text) <= 2:  # "嗯/啊"短杂音：不刷屏
                         continue
                     print(f"   🗣 \"{text}\" → {cmd if cmd else '（无关，忽略）'}")
@@ -395,6 +400,24 @@ def cmd_wake(argv=None):
         time.sleep(0.5)
 
 
+def cmd_dictation(argv=None):
+    """英语听写独立入口（免唤醒直进，联调/验收用；正式入口在 loop 里喊"小树莓，听写"）。"""
+    if sys.platform == "darwin":
+        sys.exit("✗ dictation 在树莓派上跑（要相机+麦克风）")
+    ensure_volume()
+    prewarm_tts()
+    q = queue.Queue()
+    listener = Listener(q, threading.Event(), enable_kws=False)   # 会话态：免唤醒直收
+    listener.start()
+    print("== 英语听写（免唤醒调试模式）。喊：好了 / 写完了 / 再来一遍 / 下一个 / 结束 ==")
+    try:
+        from leko.voice.dictation import DictationSession
+        summary = DictationSession(q, listener).run()
+        print("会话摘要：", summary)
+    except KeyboardInterrupt:
+        print("\n已退出")
+
+
 def cmd_loop(argv=None):
     if sys.platform == "darwin":
         sys.exit("✗ loop 在树莓派上跑（要电机）")
@@ -402,7 +425,8 @@ def cmd_loop(argv=None):
     moving = threading.Event()
     d = Pilot(moving)
     q = queue.Queue()
-    Listener(q, moving).start()
+    listener = Listener(q, moving)
+    listener.start()
     prewarm_tts()
     print("== 语音控车主循环：喊\"小树莓\"唤醒 → 说指令 ==")
     print("   指令：前进一米 / 后退半米 / 左前方前进1m / 左转九十度 / 掉头 / 停")
@@ -425,6 +449,9 @@ def cmd_loop(argv=None):
                 rc = d.arc(c["deg"], c["dist"], q)
             elif op == "turn":
                 rc = d.turn(c["deg"], q)
+            elif op == "dictation":                       # F2.0 英语听写（08 方案）
+                from leko.voice.dictation import DictationSession
+                DictationSession(q, listener).run()
             if rc == "done":
                 announce_cmd(c)                # 执行完播报（前进/一米/完毕）
     except KeyboardInterrupt:
@@ -435,7 +462,7 @@ def cmd_loop(argv=None):
 def main():
     subs = {"prompts": cmd_prompts, "calib": cmd_calib, "drive": cmd_drive,
             "check": cmd_check, "parse": cmd_parse, "mic": cmd_mic,
-            "wake": cmd_wake, "loop": cmd_loop}
+            "wake": cmd_wake, "dictation": cmd_dictation, "loop": cmd_loop}
     takes_args = ("check", "parse", "calib")
     if len(sys.argv) < 2 or sys.argv[1] not in subs:
         print(__doc__)

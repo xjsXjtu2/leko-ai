@@ -16,7 +16,8 @@ from leko.core.config import CONFIG, path
 from leko.core.util import run
 from leko.hal.audio import aplay
 
-EDGE_VOICE = CONFIG["tts"]["edge_voice"]
+EDGE_VOICE = CONFIG["tts"]["edge_voice"]             # 中文（晓晓）：流程指令
+EDGE_VOICE_EN = CONFIG["tts"].get("edge_voice_en", "en-US-AnaNeural")  # 英文（Ana 儿童声）：念单词
 TTS_CACHE = path("tts_cache")
 PROMPT_DIR = path("prompt_dir")
 PARTS_DIR = PROMPT_DIR / "parts"       # 拼接词段（离线兜底用，prompts 子命令生成）
@@ -57,22 +58,24 @@ class Speaker(threading.Thread):
         self._piper = None
         self._lock = threading.Lock()
 
-    def put(self, text, warm=False):
-        self.jobs.put((text, warm))
+    def put(self, text, warm=False, voice=None):
+        """voice=None → 中文；'en' → 英文儿童声（听写念单词）。"""
+        v = EDGE_VOICE if voice in (None, "zh") else EDGE_VOICE_EN
+        self.jobs.put((text, warm, v))
 
-    def _synth_edge(self, text):
+    def _synth_edge(self, text, v=EDGE_VOICE):
         import asyncio
         import edge_tts
-        mp3 = TTS_CACHE / (hashlib.md5(f"{EDGE_VOICE}:{text}".encode()).hexdigest() + ".mp3")
+        mp3 = TTS_CACHE / (hashlib.md5(f"{v}:{text}".encode()).hexdigest() + ".mp3")
         if not mp3.exists():
             async def go():
-                await edge_tts.Communicate(text, EDGE_VOICE).save(str(mp3))
+                await edge_tts.Communicate(text, v).save(str(mp3))
             asyncio.run(go())
         return mp3 if (mp3.exists() and mp3.stat().st_size > 2000) else None
 
-    def _say_edge(self, text):
+    def _say_edge(self, text, v=EDGE_VOICE):
         try:
-            mp3 = self._synth_edge(text)
+            mp3 = self._synth_edge(text, v)
         except Exception:            # noqa: BLE001  断网/缺包 → 让 piper 接手
             return False
         if mp3 is None:
@@ -99,30 +102,52 @@ class Speaker(threading.Thread):
     def run(self):
         TTS_CACHE.mkdir(parents=True, exist_ok=True)
         while True:
-            text, warm = self.jobs.get()
+            text, warm, v = self.jobs.get()
             try:
                 if warm:                     # 只预热合成缓存，不出声
-                    self._synth_edge(text)
+                    self._synth_edge(text, v)
                     continue
-                if not self._say_edge(text):
+                if not self._say_edge(text, v):
                     self._say_piper(text)
             except Exception as e:           # noqa: BLE001
                 print(f"   ⚠ 播报失败：{e}")
+            finally:
+                self.jobs.task_done()         # speak_wait 的 join 靠这个
 
 
 SPEAKER = Speaker()
 SPEAKER.start()
 
 
-def speak(text: str):
-    """非阻塞播报一句话：后台合成+播放（云端优先、piper 兜底、带缓存）。"""
+def speak(text: str, wait: bool = False):
+    """播报中文一句话。wait=True：等这话说完再返回（听写流程用）。"""
     SPEAKER.put(text)
+    if wait:
+        SPEAKER.jobs.join()
+
+
+def speak_wait(text: str):
+    """播报中文一句话并等它说完（听写流程用：念完再计时/再等回应）。"""
+    speak(text, wait=True)
+
+
+def speak_en(text: str, wait: bool = False):
+    """播报英文（Ana 儿童声）：念单词/拼读字母。"""
+    SPEAKER.put(text, voice="en")
+    if wait:
+        SPEAKER.jobs.join()
 
 
 def prewarm_tts():
     """预热常用播报的合成缓存（不出声）：首次应答不用等网络。"""
     for t in ("在", "已停止", "没找到指令", "卡住了"):
         SPEAKER.put(t, warm=True)
+
+
+def prewarm_words(words: list):
+    """预热听写词表全部音频（英文音色，不出声）：断网也照念（08 方案 §八）。"""
+    for w in words:
+        SPEAKER.put(w, warm=True, voice="en")
 
 
 def speak_seq(parts, gap=0.06):
