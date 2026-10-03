@@ -28,8 +28,8 @@ DEFAULTS: dict = {
         "encoder_right": {"a": 25, "b": 16},
     },
     "wake": {
-        "words": [["小树莓", "xiao3 shu4 mei2"],
-                  ["小树莓小树莓", "xiao3 shu4 mei2 xiao3 shu4 mei2"]],
+        "words": [["乐可", "le4 ke3"],
+                  ["乐可乐可", "le4 ke3 le4 ke3"]],
         "threshold": 0.25, "continue_window_s": 12, "preroll_s": 0.30,
     },
     "motion": {"speed_pwm": 0.35, "max_dist_m": 3.0, "max_reverse_m": 1.0,

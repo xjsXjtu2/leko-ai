@@ -729,7 +729,7 @@ def gen_channel_test(path: Path, seconds=9.0, rate=48000):
     return path
 
 
-def gen_voice_wav(path: Path, text="小树莓，我们来听写英语单词吧。请把书放到我前面。") -> Path | None:
+def gen_voice_wav(path: Path, text="乐可，我们来听写英语单词吧。请把书放到我前面。") -> Path | None:
     """中文播报样本：macOS 用 say，Linux 有 piper 就用 piper。用于测可懂度。
 
     macOS 上 say 直接出 AIFF（afplay 能播）；有 ffmpeg 才转成 WAV 统一格式。
@@ -974,7 +974,7 @@ def test_mic(ctx, args):
             print(ok(f"双声道均为独立信号（电平差 {diff:.1f} dB）✓"))
 
     # --- 说话测试 ---
-    print("\n" + info("拾音测试：请用正常音量说「小树莓，你好，今天天气不错」，录 6s…"))
+    print("\n" + info("拾音测试：请用正常音量说「乐可，你好，今天天气不错」，录 6s…"))
     print(C("      按回车开始", "y"), end=" ")
     try:
         input()

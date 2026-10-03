@@ -15,7 +15,7 @@
   python3 ~/leko/main.py calib --default        # 只写推算值
   python3 ~/leko/main.py drive                 # 无语音自测：里程闭环走 1 米
   python3 ~/leko/main.py mic                   # 听一句 → 打印识别与解析（不动车）
-  python3 ~/leko/main.py wake                  # 唤醒词自测（喊"小树莓"应答，不动车）
+  python3 ~/leko/main.py wake                  # 唤醒词自测（喊"乐可"应答，不动车）
   python3 ~/leko/main.py dictation            # 英语听写（F2.0；免唤醒调试模式）
   python3 ~/leko/main.py loop                  # 主循环：唤醒词 → 听 → 解析 → 执行 → 播报
 
@@ -136,7 +136,7 @@ class Listener(threading.Thread):
 
     状态机（把杂音挡在 ASR 之外，也给了指令明确边界）：
       WAKE  只跑唤醒词（聊天/电视声不进 ASR）
-             ↓ 喊"小树莓/小树莓小树莓" → 应答"在"
+             ↓ 喊"乐可/乐可乐可" → 应答"在"
       ARMED VAD+ASR 收指令（预缓冲拼回段首，补 VAD 削掉的首字）
              免唤醒续听 CONTINUE_WINDOW 秒；行驶中不回睡眠（"停"随时可打断）
              ↓ 超时无指令 → 回 WAKE
@@ -233,7 +233,7 @@ class Listener(threading.Thread):
                         and time.monotonic() - self.last_act > CONTINUE_WINDOW):
                     self.armed = False
                     proc = self._fresh_ears(proc)
-                    print("   💤 超时无指令，回到待唤醒（喊\"小树莓\"）")
+                    print("   💤 超时无指令，回到待唤醒（喊\"乐可\"）")
             except Exception as e:                     # noqa: BLE001
                 print(f"   ⚠ 监听异常：{e}（重启麦克风）")
                 time.sleep(1)
@@ -394,14 +394,14 @@ def cmd_wake(argv=None):
         sys.exit("✗ wake 在树莓派上跑（要麦克风）")
     ensure_volume()
     prewarm_tts()
-    print("== 唤醒词自测：喊\"小树莓/小树莓小树莓\"应答\"在\"；聊天/杂音不进识别。Ctrl-C 退出 ==")
+    print("== 唤醒词自测：喊\"乐可/乐可乐可\"应答\"在\"；聊天/杂音不进识别。Ctrl-C 退出 ==")
     Listener(queue.Queue(), threading.Event()).start()
     while True:
         time.sleep(0.5)
 
 
 def cmd_dictation(argv=None):
-    """英语听写独立入口（免唤醒直进，联调/验收用；正式入口在 loop 里喊"小树莓，听写"）。"""
+    """英语听写独立入口（免唤醒直进，联调/验收用；正式入口在 loop 里喊"乐可，听写"）。"""
     if sys.platform == "darwin":
         sys.exit("✗ dictation 在树莓派上跑（要相机+麦克风）")
     ensure_volume()
@@ -428,7 +428,7 @@ def cmd_loop(argv=None):
     listener = Listener(q, moving)
     listener.start()
     prewarm_tts()
-    print("== 语音控车主循环：喊\"小树莓\"唤醒 → 说指令 ==")
+    print("== 语音控车主循环：喊\"乐可\"唤醒 → 说指令 ==")
     print("   指令：前进一米 / 后退半米 / 左前方前进1m / 左转九十度 / 掉头 / 停")
     print("   唤醒后 12 秒内免唤醒连说；行驶中\"停\"随时打断；执行完语音播报结果")
     try:

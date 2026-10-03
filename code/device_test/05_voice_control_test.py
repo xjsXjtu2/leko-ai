@@ -16,7 +16,7 @@
   python3 05_voice_control_test.py drive     # ④ 无语音自测：里程闭环走 1 米（先跑这个！）
   python3 05_voice_control_test.py mic       # ⑤ 听一句 → 打印识别与解析（不动车）
   python3 05_voice_control_test.py loop      # ⑦ 主循环：唤醒词 → 听 → 解析 → 执行 → 播报
-  python3 05_voice_control_test.py wake      # ⑧ 唤醒词自测（喊"小树莓"应答，不动车）
+  python3 05_voice_control_test.py wake      # ⑧ 唤醒词自测（喊"乐可"应答，不动车）
 
 依赖（唯一的 pip）
 ------------------
@@ -115,7 +115,7 @@ TICK = 0.02         # 50Hz 控制周期
 TURN_SIGN = +1      # 实车"左转"若向右转，改成 -1
 
 # ---------------- 唤醒词（sherpa-onnx KeywordSpotter） ----------------
-WAKE_WORDS = [("小树莓", "xiao3 shu4 mei2"), ("小树莓小树莓", "xiao3 shu4 mei2 xiao3 shu4 mei2")]   # 树=四声 shù，莓=二声 méi
+WAKE_WORDS = [("乐可", "le4 ke3"), ("乐可乐可", "le4 ke3 le4 ke3")]   # 乐=四声 lè，可=三声 kě
 KWS_DIR = MODEL_DIR / "sherpa-onnx-kws-zipformer-zh-en-3M-2025-12-20"
 KWS_THRESHOLD = 0.25   # 越大越难触发（官方默认 0.25；喊不应就调小）
 KWS_KEYWORDS_FILE = MODEL_DIR / "keywords.txt"    # make_keywords_file 自动生成
@@ -478,7 +478,7 @@ def _leftover_ok(t: str, *parts) -> bool:
 
     防"今天走了五米路"这类闲聊误触发；"呃前进一米吧"照常通过。
     """
-    # 唤醒词前缀豁免：唤醒词 3 字 > 剩字门槛 2，"小树莓前进一米"一句连说
+    # 唤醒词前缀豁免："乐可前进一米"一句连说
     # （或预缓冲漏进来 1-2 个字）必须能过；先剥句首唤醒词再数剩字，闲聊门不受影响。
     rest = t
     for w, _ in WAKE_WORDS:
@@ -745,7 +745,7 @@ class Listener(threading.Thread):
 
     状态机（把杂音挡在 ASR 之外，也给了指令明确边界）：
       WAKE  只跑唤醒词（聊天/电视声不进 ASR）
-             ↓ 喊"小树莓/小树莓小树莓" → 应答"在"
+             ↓ 喊"乐可/乐可乐可" → 应答"在"
       ARMED VAD+ASR 收指令（0.3s 预缓冲拼回段首，补 VAD 削掉的首字）
              免唤醒续听 CONTINUE_WINDOW 秒；行驶中不回睡眠（"停"随时可打断）
              ↓ 超时无指令 → 回 WAKE
@@ -845,7 +845,7 @@ class Listener(threading.Thread):
                         and time.monotonic() - self.last_act > CONTINUE_WINDOW):
                     self.armed = False
                     proc = self._fresh_ears(proc)
-                    print("   💤 超时无指令，回到待唤醒（喊\"小树莓\"）")
+                    print("   💤 超时无指令，回到待唤醒（喊\"乐可\"）")
             except Exception as e:                     # noqa: BLE001
                 print(f"   ⚠ 监听异常：{e}（重启麦克风）")
                 time.sleep(1)
@@ -1173,7 +1173,7 @@ def cmd_wake(argv=None):
         sys.exit("✗ wake 在树莓派上跑（要麦克风）")
     ensure_volume()
     prewarm_tts()
-    print("== 唤醒词自测：喊\"小树莓/小树莓小树莓\"应答\"在\"；聊天/杂音不进识别。Ctrl-C 退出 ==")
+    print("== 唤醒词自测：喊\"乐可/乐可乐可\"应答\"在\"；聊天/杂音不进识别。Ctrl-C 退出 ==")
     Listener(queue.Queue(), threading.Event()).start()
     while True:
         time.sleep(0.5)
@@ -1188,7 +1188,7 @@ def cmd_loop(argv=None):
     d = Driver(moving)
     q = queue.Queue()
     Listener(q, moving).start()
-    print("== 语音控车主循环：喊\"小树莓\"唤醒 → 说指令 ==")
+    print("== 语音控车主循环：喊\"乐可\"唤醒 → 说指令 ==")
     print("   指令：前进一米 / 后退半米 / 左前方前进1m / 左转九十度 / 掉头 / 停")
     print("   唤醒后 12 秒内免唤醒连说；行驶中\"停\"随时打断；执行完语音播报结果")
     try:

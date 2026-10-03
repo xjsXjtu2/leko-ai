@@ -20,9 +20,9 @@ pins:                                 # 实车已校准：forward() = 车头（�
   encoder_right: {a: 25, b: 16}
 
 wake:                                 # 唤醒词（sherpa-onnx KeywordSpotter）
-  words:                               # [显示文本, 拼音(带声调数字)]；树=四声 莓=二声
-    - ["小树莓", "xiao3 shu4 mei2"]
-    - ["小树莓小树莓", "xiao3 shu4 mei2 xiao3 shu4 mei2"]
+  words:                               # [显示文本, 拼音(带声调数字)]
+    - ["乐可", "le4 ke3"]                 # 乐=四声 lè，可=三声 kě（品牌 leko 的中文读法）
+    - ["乐可乐可", "le4 ke3 le4 ke3"]
   threshold: 0.25                     # 越大越难触发；喊不应就调小
   continue_window_s: 12               # 免唤醒续听窗口；行驶中不回睡眠（"停"要能打断）
   preroll_s: 0.30                     # 预缓冲：VAD 触发前 0.3s 拼回段首，补削掉的首字

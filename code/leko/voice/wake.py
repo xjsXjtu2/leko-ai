@@ -1,4 +1,4 @@
-"""voice：唤醒词（sherpa-onnx KeywordSpotter，「小树莓」，纯本地）。
+"""voice：唤醒词（sherpa-onnx KeywordSpotter，「乐可」，纯本地）。
 
 关键词文件按 tokens.txt 实测自动生成（拼音声母+带调韵母），拆不开会报错退出。
 ⚠ KWS 的 accept_waveform 只认 float32 归一化刻度——int16 会被当原始字节
